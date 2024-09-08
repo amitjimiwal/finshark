@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using stockapi.DTO.Comments;
+using stockapi.Models;
 
 namespace stockapi.DTO.Stocks
 {
@@ -17,5 +19,7 @@ namespace stockapi.DTO.Stocks
         public string Industry { get; set; }=string.Empty;
 
         public long MarketCap { get; set; }
+
+        public List<CommentDTO> Comments {get; set;}
     }
 }

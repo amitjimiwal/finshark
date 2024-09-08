@@ -39,12 +39,12 @@ namespace stockapi.Repository
         }
 
         public async Task<List<Stock>> GetAllAsync(){
-            return await dbContext.Stocks.ToListAsync();
+            return await dbContext.Stocks.Include(c=> c.Comments).ToListAsync();
         }
 
         public async Task<Stock?> GetByIDAsync(int id)
         {
-            var stockModel=await dbContext.Stocks.FindAsync(id);
+            var stockModel=await dbContext.Stocks.Include(c=> c.Comments).FirstOrDefaultAsync(i => i.ID==id);
             if (stockModel==null)
             {
                 return null;
@@ -67,6 +67,10 @@ namespace stockapi.Repository
             await dbContext.SaveChangesAsync();
 
             return stock;
+        }
+
+        public async Task<bool> StockExists(int id){
+            return await dbContext.Stocks.AnyAsync(s => s.ID==id);
         }
     }
 }
