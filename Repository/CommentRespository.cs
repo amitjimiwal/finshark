@@ -25,6 +25,16 @@ namespace stockapi.Repository
             return commentModel;
         }
 
+        public async Task<Comment?> DeleteAsync(int id)
+        {
+            var comment=await dbContext.Comments.FindAsync(id);
+            if(comment==null) return null;
+            dbContext.Comments.Remove(comment);
+            await dbContext.SaveChangesAsync();
+
+            return comment;
+        }
+
         public async Task<List<Comment>> GetAllAsync(){
             return await dbContext.Comments.ToListAsync();
          }

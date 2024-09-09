@@ -15,5 +15,7 @@ namespace stockapi.Interface
         Task<Comment> CreateComment(Comment commentModel);
 
         Task<Comment?> UpdateAsync(int id,Comment updateCommentRequestDto);
+
+        Task<Comment?> DeleteAsync(int id);
     }
 }
