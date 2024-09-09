@@ -24,6 +24,12 @@ namespace stockapi.Controllers
 
         [HttpGet]
         public async Task<IActionResult?> GetAllComments(){
+
+            //abstraction for validating the incoming data structure , just like zod in javascript/typescript
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+
             var comments=await commentRepository.GetAllAsync();
             if(comments==null) return null;
             var commentsDTO=comments.Select(s => s.ToCommentDTO());
@@ -31,8 +37,11 @@ namespace stockapi.Controllers
         }
 
         [HttpGet]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult?> GetCommentByID([FromRoute]int id){
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var comment=await commentRepository.GetByID(id);
             if(comment==null){
                 return NotFound();
@@ -41,8 +50,11 @@ namespace stockapi.Controllers
         }
 
         [HttpPost]
-        [Route("{stockID}")]
+        [Route("{stockID:int}")]
         public async Task<IActionResult> CreateComment([FromRoute] int stockID,[FromBody] CreateCommentDTO createCommentDTO){
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             //if stock exists
             var StockExists=await stockRepository.StockExists(stockID);
             if(!StockExists) return BadRequest("Stock Does not Exists");
@@ -57,9 +69,12 @@ namespace stockapi.Controllers
         }
 
         [HttpPut]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCommentRequestDto updateDto)
         {
+             if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var comment = await commentRepository.UpdateAsync(id, updateDto.ToCommentFromUpdate(id));
 
             if (comment == null)
@@ -70,14 +85,18 @@ namespace stockapi.Controllers
         }
 
         [HttpDelete]
-        [Route("{id}")]
+    [Route("{id:int}")]
         public async Task<IActionResult> DeleteComment([FromRoute] int id){
+
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+                
             var deletedComment=await commentRepository.DeleteAsync(id);
             if(deletedComment==null) return NotFound();
 
             return Ok(new {
                 message=$"Deleted comment with {id}",
-                deletedComment=deletedComment
+                commentDeleted=deletedComment
             });
         }
     }
