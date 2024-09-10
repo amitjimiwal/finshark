@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using stockapi.Data;
@@ -20,6 +21,7 @@ namespace stockapi.Controllers
         }
         //get route
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
         {
             //abstraction for validating the incoming data structure , just like zod in javascript/typescript
