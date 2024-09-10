@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using stockapi.Models;
 
 namespace stockapi.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<AppUser>
     {
         // AppDbContext inherits the DBContext class and here we are passing the options parameter to the super class using the `base` which call constructor of parent class
         public AppDbContext(DbContextOptions options) : base(options)
