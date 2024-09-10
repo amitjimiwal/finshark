@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using stockapi.Data;
 using stockapi.DTO.Stocks;
+using stockapi.Helpers;
 using stockapi.Interface;
 using stockapi.Mapper;
 using stockapi.Models;
@@ -19,13 +20,13 @@ namespace stockapi.Controllers
         }
         //get route
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
         {
             //abstraction for validating the incoming data structure , just like zod in javascript/typescript
             //returns BAd request if data validation fails
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var stocks =await stockRepository.GetAllAsync();
+            var stocks =await stockRepository.GetAllAsync(query);
             if(stocks==null){
                 return NotFound();
             }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using stockapi.Data;
 using stockapi.DTO.Stocks;
+using stockapi.Helpers;
 using stockapi.Interface;
 using stockapi.Models;
 
@@ -38,8 +39,34 @@ namespace stockapi.Repository
             return stockModel;
         }
 
-        public async Task<List<Stock>> GetAllAsync(){
-            return await dbContext.Stocks.Include(c=> c.Comments).ToListAsync();
+        // Important - All the filters are applied to this function only
+        public async Task<List<Stock>> GetAllAsync(QueryObject query){
+            var stocks= dbContext.Stocks.Include("Comments").AsQueryable();
+            //method to check the string has Null or Whitespace
+            if(!string.IsNullOrWhiteSpace(query.CompanyName)){
+                stocks=stocks.Where(s => s.CompanyName.Contains(query.CompanyName));
+            };
+            if(!string.IsNullOrWhiteSpace(query.Symbol)){
+                stocks=stocks.Where(s => s.Symbol.Contains(query.Symbol));
+            };
+
+            //sorting
+            if(!string.IsNullOrWhiteSpace(query.SortBY)){
+                //sort by Symbol
+                if(query.SortBY.Equals("Symbol",StringComparison.OrdinalIgnoreCase)){
+                    stocks=query.IsDescending ? stocks.OrderByDescending(s => s.Symbol) : stocks.OrderBy(s => s.Symbol);
+                };
+
+                //sort by CompanyName
+                if(query.SortBY.Equals("CompanyName",StringComparison.OrdinalIgnoreCase)){
+                    stocks=query.IsDescending ? stocks.OrderByDescending(s => s.CompanyName) : stocks.OrderBy(s => s.CompanyName);
+                };
+            }
+
+
+            //pagination
+            int skipNumber=(query.PageNumber==0 ? 0 : query.PageNumber-1)*query.PageSize;
+            return await stocks.Skip(skipNumber).Take(query.PageSize).ToListAsync();
         }
 
         public async Task<Stock?> GetByIDAsync(int id)

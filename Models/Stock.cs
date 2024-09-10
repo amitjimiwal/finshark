@@ -23,6 +23,6 @@ namespace stockapi.Models
 
         public long MarketCap { get; set; }
         // One to many relationship
-        public List<Comment> Comments=new List<Comment>();  
+        public List<Comment> Comments { get; set; }=new List<Comment>();  
     }
 }

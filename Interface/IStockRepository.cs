@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using stockapi.DTO.Stocks;
+using stockapi.Helpers;
 using stockapi.Models;
 
 namespace stockapi.Interface
 {
     public interface IStockRepository
     {
-         Task<List<Stock>> GetAllAsync();
+         Task<List<Stock>> GetAllAsync(QueryObject query);
          Task<Stock?> GetByIDAsync(int id);
 
          Task<Stock> CreateAsync(Stock stockModel );
