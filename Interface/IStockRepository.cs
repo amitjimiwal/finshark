@@ -13,6 +13,7 @@ namespace stockapi.Interface
          Task<List<Stock>> GetAllAsync(QueryObject query);
          Task<Stock?> GetByIDAsync(int id);
 
+         Task<Stock?> GetBySymbolAsync(string Symbol);
          Task<Stock> CreateAsync(Stock stockModel );
          Task<Stock?> UpdateAsync(int id,UpdateStockRequestDto updateStockRequestDto);
 

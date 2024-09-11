@@ -99,5 +99,15 @@ namespace stockapi.Repository
         public async Task<bool> StockExists(int id){
             return await dbContext.Stocks.AnyAsync(s => s.ID==id);
         }
+
+        public async Task<Stock?> GetBySymbolAsync(string Symbol)
+        {
+             var stockModel=await dbContext.Stocks.Include(c=> c.Comments).FirstOrDefaultAsync(i => i.Symbol==Symbol);
+            if (stockModel==null)
+            {
+                return null;
+            }
+            return stockModel;
+        }
     }
 }

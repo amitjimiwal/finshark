@@ -89,6 +89,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ICommentRepository, CommentRespository>();
 
 builder.Services.AddScoped<IStockRepository, StockRepository>();
+builder.Services.AddScoped<IPortfolioRepository,PortfolioRepository>();
 
 //Injecting the token service
 builder.Services.AddScoped<ItokenService, TokenService>();
