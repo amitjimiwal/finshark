@@ -16,7 +16,7 @@ namespace stockapi.Repository
         private readonly AppDbContext dbContext;
         public StockRepository(AppDbContext context)
         {
-            this.dbContext=context;
+            this.dbContext = context;
         }
 
         public async Task<Stock> CreateAsync(Stock stockModel)
@@ -29,9 +29,9 @@ namespace stockapi.Repository
 
         public async Task<Stock?> DeleteAsync(int id)
         {
-            var stockModel=await dbContext.Stocks.FirstOrDefaultAsync(x => x.ID==id);
+            var stockModel = await dbContext.Stocks.FirstOrDefaultAsync(x => x.ID == id);
 
-            if(stockModel==null) return null;
+            if (stockModel == null) return null;
 
             dbContext.Stocks.Remove(stockModel);
             await dbContext.SaveChangesAsync();
@@ -40,39 +40,45 @@ namespace stockapi.Repository
         }
 
         // Important - All the filters are applied to this function only
-        public async Task<List<Stock>> GetAllAsync(QueryObject query){
-            var stocks= dbContext.Stocks.Include("Comments").AsQueryable();
+        public async Task<List<Stock>> GetAllAsync(QueryObject query)
+        {
+            var stocks = dbContext.Stocks.Include(c => c.Comments).ThenInclude(a => a.AppUser).AsQueryable();
             //method to check the string has Null or Whitespace
-            if(!string.IsNullOrWhiteSpace(query.CompanyName)){
-                stocks=stocks.Where(s => s.CompanyName.Contains(query.CompanyName));
+            if (!string.IsNullOrWhiteSpace(query.CompanyName))
+            {
+                stocks = stocks.Where(s => s.CompanyName.Contains(query.CompanyName));
             };
-            if(!string.IsNullOrWhiteSpace(query.Symbol)){
-                stocks=stocks.Where(s => s.Symbol.Contains(query.Symbol));
+            if (!string.IsNullOrWhiteSpace(query.Symbol))
+            {
+                stocks = stocks.Where(s => s.Symbol.Contains(query.Symbol));
             };
 
             //sorting
-            if(!string.IsNullOrWhiteSpace(query.SortBY)){
+            if (!string.IsNullOrWhiteSpace(query.SortBY))
+            {
                 //sort by Symbol
-                if(query.SortBY.Equals("Symbol",StringComparison.OrdinalIgnoreCase)){
-                    stocks=query.IsDescending ? stocks.OrderByDescending(s => s.Symbol) : stocks.OrderBy(s => s.Symbol);
+                if (query.SortBY.Equals("Symbol", StringComparison.OrdinalIgnoreCase))
+                {
+                    stocks = query.IsDescending ? stocks.OrderByDescending(s => s.Symbol) : stocks.OrderBy(s => s.Symbol);
                 };
 
                 //sort by CompanyName
-                if(query.SortBY.Equals("CompanyName",StringComparison.OrdinalIgnoreCase)){
-                    stocks=query.IsDescending ? stocks.OrderByDescending(s => s.CompanyName) : stocks.OrderBy(s => s.CompanyName);
+                if (query.SortBY.Equals("CompanyName", StringComparison.OrdinalIgnoreCase))
+                {
+                    stocks = query.IsDescending ? stocks.OrderByDescending(s => s.CompanyName) : stocks.OrderBy(s => s.CompanyName);
                 };
             }
 
 
             //pagination
-            int skipNumber=(query.PageNumber==0 ? 0 : query.PageNumber-1)*query.PageSize;
+            int skipNumber = (query.PageNumber == 0 ? 0 : query.PageNumber - 1) * query.PageSize;
             return await stocks.Skip(skipNumber).Take(query.PageSize).ToListAsync();
         }
 
         public async Task<Stock?> GetByIDAsync(int id)
         {
-            var stockModel=await dbContext.Stocks.Include(c=> c.Comments).FirstOrDefaultAsync(i => i.ID==id);
-            if (stockModel==null)
+            var stockModel = await dbContext.Stocks.Include(c => c.Comments).FirstOrDefaultAsync(i => i.ID == id);
+            if (stockModel == null)
             {
                 return null;
             }
@@ -81,8 +87,9 @@ namespace stockapi.Repository
 
         public async Task<Stock?> UpdateAsync(int id, UpdateStockRequestDto updateStockRequestDto)
         {
-             var stock=await dbContext.Stocks.FirstOrDefaultAsync(x => x.ID==id);
-            if(stock==null){
+            var stock = await dbContext.Stocks.FirstOrDefaultAsync(x => x.ID == id);
+            if (stock == null)
+            {
                 return null;
             }
             stock.Symbol = updateStockRequestDto.Symbol;
@@ -96,14 +103,15 @@ namespace stockapi.Repository
             return stock;
         }
 
-        public async Task<bool> StockExists(int id){
-            return await dbContext.Stocks.AnyAsync(s => s.ID==id);
+        public async Task<bool> StockExists(int id)
+        {
+            return await dbContext.Stocks.AnyAsync(s => s.ID == id);
         }
 
         public async Task<Stock?> GetBySymbolAsync(string Symbol)
         {
-             var stockModel=await dbContext.Stocks.Include(c=> c.Comments).FirstOrDefaultAsync(i => i.Symbol==Symbol);
-            if (stockModel==null)
+            var stockModel = await dbContext.Stocks.Include(c => c.Comments).FirstOrDefaultAsync(i => i.Symbol == Symbol);
+            if (stockModel == null)
             {
                 return null;
             }

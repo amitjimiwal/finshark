@@ -15,7 +15,8 @@ namespace stockapi.Mapper
                 Title=comment.Title,
                 Description=comment.Description,
                 CreatedOn=comment.CreatedOn,
-                StockID=comment.StockID
+                StockID=comment.StockID,
+                CreatedBy=comment.AppUser.UserName
             };
         }
         public static Comment ToCommentFromDTO(this CreateCommentDTO commentDTO,int stockID){
