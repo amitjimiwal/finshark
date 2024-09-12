@@ -11,6 +11,7 @@ using stockapi.Extensions;
 using stockapi.Interface;
 using stockapi.Mapper;
 using stockapi.Models;
+using stockapi.Service;
 
 namespace stockapi.Controllers
 {
@@ -21,11 +22,13 @@ namespace stockapi.Controllers
         private readonly ICommentRepository commentRepository;
         private readonly IStockRepository stockRepository;
         private readonly UserManager<AppUser> userManager;
-        public CommentController(ICommentRepository repository, IStockRepository stRepository,UserManager<AppUser> manager)
+        private readonly IFinancialService fmpService;
+        public CommentController(ICommentRepository repository, IStockRepository stRepository, UserManager<AppUser> manager, IFinancialService fmp)
         {
             this.commentRepository = repository;
             this.stockRepository = stRepository;
-            this.userManager=manager;
+            this.userManager = manager;
+            this.fmpService = fmp;
         }
 
         [HttpGet]
@@ -59,24 +62,32 @@ namespace stockapi.Controllers
         }
 
         [HttpPost]
-        [Route("{stockID:int}")]
+        [Route("{symbol:alpha}")]
         [Authorize]
-        public async Task<IActionResult> CreateComment([FromRoute] int stockID, [FromBody] CreateCommentDTO createCommentDTO)
+        public async Task<IActionResult> CreateComment([FromRoute] string symbol, [FromBody] CreateCommentDTO createCommentDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             //if stock exists
-            var StockExists = await stockRepository.StockExists(stockID);
-            if (!StockExists) return BadRequest("Stock Does not Exists");
+            var stock = await stockRepository.GetBySymbolAsync(symbol);
+            if (stock == null)
+            {
+                //populate the stock from FMP service
+                stock=await fmpService.FindStockByName(symbol);
+                if(stock==null){
+                    return BadRequest("Stock doesn't exists");
+                }else{
+                    await stockRepository.CreateAsync(stock);
+                }
+            }
 
-            var username=User.GetUserName();
-            var appUser=await userManager.FindByNameAsync(username);
-            if(appUser==null) return Unauthorized("You are not authorized to create comments");
-
+            var username = User.GetUserName();
+            var appUser = await userManager.FindByNameAsync(username);
+            if (appUser == null) return Unauthorized("You are not authorized to create comments");
             //create comment from DTO
-            var comment = createCommentDTO.ToCommentFromDTO(stockID);
-            comment.AppUserId=appUser.Id;
+            var comment = createCommentDTO.ToCommentFromDTO(stock.ID);
+            comment.AppUserId = appUser.Id;
             await commentRepository.CreateComment(comment);
 
             //created at action with 201 response

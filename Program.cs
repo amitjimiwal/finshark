@@ -89,10 +89,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ICommentRepository, CommentRespository>();
 
 builder.Services.AddScoped<IStockRepository, StockRepository>();
-builder.Services.AddScoped<IPortfolioRepository,PortfolioRepository>();
+builder.Services.AddScoped<IPortfolioRepository, PortfolioRepository>();
 
 //Injecting the token service
 builder.Services.AddScoped<ItokenService, TokenService>();
+builder.Services.AddScoped<IFinancialService, FMPService>();
+builder.Services.AddHttpClient<IFinancialService, FMPService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
